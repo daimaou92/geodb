@@ -328,7 +328,7 @@ pub async fn reader_cities() -> Result<maxminddb::Reader<Vec<u8>>, GDErr> {
     Ok(reader)
 }
 
-pub async fn reader_countries_maxmind() -> Result<maxminddb::Reader<Vec<u8>>, GDErr> {
+pub async fn reader_countries() -> Result<maxminddb::Reader<Vec<u8>>, GDErr> {
     let dir = std::env::var("GL2_DBDIR")?;
     let p = std::path::Path::new(&dir).join("dbs/countries.mmdb");
     let reader = maxminddb::Reader::open_readfile(&p)?;
@@ -343,7 +343,7 @@ pub async fn reader_asn() -> Result<maxminddb::Reader<Vec<u8>>, GDErr> {
     Ok(reader)
 }
 
-pub async fn reader_countries() -> Result<HashMap<String, Country>, GDErr> {
+pub async fn countries_hashmap() -> Result<HashMap<String, Country>, GDErr> {
     let dir = std::env::var("GL2_DBDIR")?;
     let p = if let Some(p) = std::path::Path::new(&dir)
         .join("dbs/countries-iso.csv")
