@@ -21,3 +21,4 @@ tar = "0.4"
 [features]
 asn = []
 cities = []
+noupdate = []

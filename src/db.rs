@@ -13,6 +13,12 @@ async fn download(url: String, file: String) -> Result<(), GDErr> {
 
 fn update_needed(dir: String) -> bool {
     let p = std::path::Path::new(&dir).join("version");
+    if cfg!(feature = "noupdate") {
+        if p.exists() {
+            println!("feature noupdate is active");
+            return false;
+        }
+    }
     let mut f = match std::fs::File::open(p) {
         Ok(p) => p,
         Err(e) => {
