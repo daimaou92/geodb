@@ -196,22 +196,21 @@ fn record_to_vec_string(record: &csv::StringRecord, index: usize) -> Result<Vec<
 }
 
 #[derive(Debug, Clone, Default)]
-#[allow(unused)]
 pub struct Country {
-    dial_codes: Vec<String>,     // 1
-    iso3: String,                // 2
-    iso_num: i32,                // 5
-    iso2: String,                // 9
-    currency_name: String,       // 18
-    currency_code: String,       // 25
-    name: String,                // 41
-    region: String,              // 44
-    capital: String,             // 49
-    continent_code: String,      // 50
-    tld: String,                 // 51
-    language_codes: Vec<String>, // 52
-    geoname_id: i64,             // 53
-    display_name: String,        // 54
+    pub dial_codes: Vec<String>,     // 1
+    pub iso3: String,                // 2
+    pub iso_num: i32,                // 5
+    pub iso2: String,                // 9
+    pub currency_name: String,       // 18
+    pub currency_code: String,       // 25
+    pub name: String,                // 41
+    pub region: String,              // 44
+    pub capital: String,             // 49
+    pub continent_code: String,      // 50
+    pub tld: String,                 // 51
+    pub language_codes: Vec<String>, // 52
+    pub geoname_id: i64,             // 53
+    pub display_name: String,        // 54
 }
 fn csv_to_countries(f: String) -> Result<HashMap<String, Country>, GDErr> {
     let mut countries = HashMap::<String, Country>::new();
