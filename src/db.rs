@@ -164,24 +164,32 @@ fn record_to_string(record: &csv::StringRecord, index: usize) -> Result<String, 
     Ok(d)
 }
 
-fn record_to_i32(record: &csv::StringRecord, index: usize) -> Result<i32, GDErr> {
-    let d = if let Some(v) = record.get(index) {
-        let i: i32 = v.parse()?;
-        i
-    } else {
-        return Err(GDErr::GenericErr("failed to convert to string".to_string()));
+fn record_to_i32(record: &csv::StringRecord, index: usize) -> Option<i32> {
+    if let Some(v) = record.get(index) {
+        match v.parse::<i32>() {
+            Ok(v) => {
+                return Some(v);
+            }
+            Err(e) => {
+                eprintln!("{:?}", e);
+            }
+        };
     };
-    Ok(d)
+    None
 }
 
-fn record_to_i64(record: &csv::StringRecord, index: usize) -> Result<i64, GDErr> {
-    let d = if let Some(v) = record.get(index) {
-        let i: i64 = v.parse()?;
-        i
-    } else {
-        return Err(GDErr::GenericErr("failed to convert to string".to_string()));
+fn record_to_i64(record: &csv::StringRecord, index: usize) -> Option<i64> {
+    if let Some(v) = record.get(index) {
+        match v.parse::<i64>() {
+            Ok(v) => {
+                return Some(v);
+            }
+            Err(e) => {
+                eprintln!("{:?}", e);
+            }
+        };
     };
-    Ok(d)
+    None
 }
 fn record_to_vec_string(record: &csv::StringRecord, index: usize) -> Result<Vec<String>, GDErr> {
     let mut vs = Vec::<String>::new();
@@ -199,7 +207,7 @@ fn record_to_vec_string(record: &csv::StringRecord, index: usize) -> Result<Vec<
 pub struct Country {
     pub dial_codes: Vec<String>,     // 1
     pub iso3: String,                // 2
-    pub iso_num: i32,                // 5
+    pub iso_num: Option<i32>,        // 5
     pub iso2: String,                // 9
     pub currency_name: String,       // 18
     pub currency_code: String,       // 25
@@ -209,7 +217,7 @@ pub struct Country {
     pub continent_code: String,      // 50
     pub tld: String,                 // 51
     pub language_codes: Vec<String>, // 52
-    pub geoname_id: i64,             // 53
+    pub geoname_id: Option<i64>,     // 53
     pub display_name: String,        // 54
 }
 fn csv_to_countries(f: String) -> Result<HashMap<String, Country>, GDErr> {
@@ -220,7 +228,7 @@ fn csv_to_countries(f: String) -> Result<HashMap<String, Country>, GDErr> {
         let country = Country {
             dial_codes: record_to_vec_string(&record, 1)?,
             iso3: record_to_string(&record, 2)?,
-            iso_num: record_to_i32(&record, 5)?,
+            iso_num: record_to_i32(&record, 5),
             iso2: record_to_string(&record, 9)?,
             currency_name: record_to_string(&record, 18)?,
             currency_code: record_to_string(&record, 25)?,
@@ -230,7 +238,7 @@ fn csv_to_countries(f: String) -> Result<HashMap<String, Country>, GDErr> {
             continent_code: record_to_string(&record, 50)?,
             tld: record_to_string(&record, 51)?,
             language_codes: record_to_vec_string(&record, 52)?,
-            geoname_id: record_to_i64(&record, 53)?,
+            geoname_id: record_to_i64(&record, 53),
             display_name: record_to_string(&record, 54)?,
         };
         countries.insert(String::from(&country.iso2), country);
@@ -372,5 +380,19 @@ pub async fn sync_dbs(tx: Option<tokio::sync::mpsc::Sender<String>>) {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{countries_hashmap, update_db, GDErr};
+
+    #[tokio::test]
+    async fn get_countries_hashmap() {
+        update_db().await.unwrap();
+        let c = countries_hashmap().await.unwrap();
+        let c = c.get("IN").unwrap();
+        let c = c.dial_codes.get(0).unwrap();
+        assert_eq!(c, "91");
     }
 }
